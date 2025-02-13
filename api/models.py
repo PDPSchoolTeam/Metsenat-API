@@ -12,11 +12,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150, unique=True, )
+    username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     role = models.CharField(max_length=30, choices=ROLE_CHOICES, default='user')
     avatar = models.ImageField(upload_to="avatar/student", default="./student.webp")
+    is_staff = models.BooleanField(default=False)  # REQUIRED for admin access
+    is_superuser = models.BooleanField(default=False)  # REQUIRED for superusers
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
@@ -25,6 +27,3 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'user'
         verbose_name_plural = 'users'
-
-    def __str__(self):
-        return self.email, self.role, self.first_name, self.last_name
