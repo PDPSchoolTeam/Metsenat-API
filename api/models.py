@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from api.managers import UserManager
+from django.core.exceptions import ValidationError
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -57,7 +58,6 @@ class Student(models.Model):
         verbose_name ='student'
         verbose_name_plural ='students'
 
-
 class Sponsor(models.Model):
     class StatusChoices(models.TextChoices):
         NEW = 'new', 'New'
@@ -65,25 +65,40 @@ class Sponsor(models.Model):
         CONFIRMED = 'confirmed', 'Confirmed'
         CANCELLED = 'cancelled', 'Cancelled'
 
-    class Sponsor_status(models.TextChoices):
-        juridical = 'YURIDIK SHAXS', 'yuridik shaxs' # noqa
-        individual = 'JISMONIY SHAXS', 'jismoniy shaxs' # noqa
+    class SponsorStatus(models.TextChoices):
+        JURIDICAL = 'YURIDIK SHAXS', 'Yuridik shaxs'
+        INDIVIDUAL = 'JISMONIY SHAXS', 'Jismoniy shaxs'
 
     full_name = models.CharField(max_length=250)
     phone = models.CharField(max_length=30)
     amount = models.PositiveBigIntegerField()
     is_organization = models.BooleanField()
     progress = models.CharField(max_length=30, choices=StatusChoices.choices)
-    sponsor_status = models.CharField(max_length=50, choices=Sponsor_status.choices)
+    sponsor_status = models.CharField(max_length=50, choices=SponsorStatus.choices, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    organization_name = models.CharField(max_length=250)
+    organization_name = models.CharField(max_length=250, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.sponsor_status = self.SponsorStatus.JURIDICAL if self.is_organization else self.SponsorStatus.INDIVIDUAL
+        if not self.is_organization:
+            self.organization_name = None
+
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        """Form yoki admin panel orqali validatsiya qo'shish."""
+        if self.is_organization and not self.organization_name:
+            raise ValidationError({'organization_name': "Yuridik shaxs uchun tashkilot nomi majburiy!"})
+        if not self.is_organization and self.organization_name:
+            raise ValidationError({'organization_name': "Jismoniy shaxs uchun tashkilot nomi kiritilmasligi kerak!"})
 
     def __str__(self):
-        return self.full_name, self.organization_name, self.amount
+        return f"{self.full_name} - {self.sponsor_status} - {self.amount}"
 
     class Meta:
-        verbose_name ='sponsor'
-        verbose_name_plural ='sponsors'
+        verbose_name = 'sponsor'
+        verbose_name_plural = 'sponsors'
+
 
 class StudentSponsor(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
