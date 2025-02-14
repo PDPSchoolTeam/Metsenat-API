@@ -15,7 +15,7 @@ class UserAdmin(admin.ModelAdmin):
     list_per_page = 8
 
     def image_tag(self, obj):
-        return format_html(f'''<a href="{obj.image.url}" target="_blank"><img src="{obj.image.url}"
+        return format_html(f'''<a href="{obj.avatar.url}" target="_blank"><img src="{obj.avatar.url}"
          alt="image" width="100 height="100" style="object-fit : cover;"/></a>''')
 
 @admin.register(University)
