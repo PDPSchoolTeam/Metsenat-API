@@ -38,6 +38,7 @@ class RegisterAPIView(APIView):
 
 
 class LoginAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
     @extend_schema(
         summary="User Login",
         description="Login user with email and password",
