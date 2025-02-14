@@ -6,8 +6,10 @@ from django.contrib.auth.hashers import make_password, check_password
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .serializers import LoginSerializer, RegisterSerializer
 from .models import User
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class RegisterAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
     @extend_schema(
         summary="User Registration",
         description="Register user",
