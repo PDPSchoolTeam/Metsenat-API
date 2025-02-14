@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_filters',
     'api'
 ]
 
@@ -47,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 
 ]
 
@@ -104,6 +105,26 @@ DATABASES = {
 #     },
 # ]
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',),
+
+    'DATETIME_INPUT_FORMATS': ['%d-%m-%Y %H:%M:%S', '%d-%m-%Y %-H:%M:%S'],
+    'DATE_INPUT_FORMATS': ['%d-%m-%Y %H:%M:%S', '%d-%m-%Y %-H:%M:%S'],
+    'DATETIME_FORMAT': '%d-%m-%Y %-H:%M:%S',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Metsenat API',
+    'DESCRIPTION': 'Website Metsenat API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': r'/api',
+    'COMPONENT_SPLIT_REQUEST': True
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -171,8 +192,8 @@ JAZZMIN_SETTINGS = {
     'icons': {
         'api.student': 'fa fa-graduation-cap',  # Student modeliga ikonka qo'shish
         'api.university': 'fa fa-school',  # University Modeliga ikonka qo'shish
-        'api.sponsor': 'fa fa-business-time', # Sponsor modeliga ikonka qo'shish
-        'api.studentSponsor': 'fa fa-chart-simple', # StudentSponsor modeliga ikonka qo'shish
+        'api.sponsor': 'fa fa-business-time',  # Sponsor modeliga ikonka qo'shish
+        'api.studentSponsor': 'fa fa-chart-simple',  # StudentSponsor modeliga ikonka qo'shish
         'api.user': 'fas fa-user',  # User modeliga ikona qo'shish
         'auth.group': 'fas fa-users',  # Group modeliga ikona qo'shish
     },
