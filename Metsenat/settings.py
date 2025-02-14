@@ -159,8 +159,10 @@ JAZZMIN_SETTINGS = {
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fa fa-layer-group",
     'icons': {
-        'apps.Product': 'fa fa-filter',  # Post modeliga ikona qo'shish
-        'apps.Images': 'fa fa-image',  # Images Modeliga ikonga qo'shish
+        'api.student': 'fa fa-graduation-cap',  # Student modeliga ikonka qo'shish
+        'api.university': 'fa fa-school',  # University Modeliga ikonka qo'shish
+        'api.sponsor': 'fa fa-business-time', # Sponsor modeliga ikonka qo'shish
+        'api.studentSponsor': 'fa fa-chart-simple', # StudentSponsor modeliga ikonka qo'shish
         'api.user': 'fas fa-user',  # User modeliga ikona qo'shish
         'auth.group': 'fas fa-users',  # Group modeliga ikona qo'shish
     },

@@ -31,6 +31,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 class University(models.Model):
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'university'
+        verbose_name_plural = 'universities'
+
 
 class Student(models.Model):
     class StudentTypes(models.TextChoices):
@@ -46,6 +53,10 @@ class Student(models.Model):
     def __str__(self):
         return self.full_name
 
+    class Meta:
+        verbose_name ='student'
+        verbose_name_plural ='students'
+
 
 class Sponsor(models.Model):
     class StatusChoices(models.TextChoices):
@@ -54,20 +65,35 @@ class Sponsor(models.Model):
         CONFIRMED = 'confirmed', 'Confirmed'
         CANCELLED = 'cancelled', 'Cancelled'
 
+    class Sponsor_status(models.TextChoices):
+        juridical = 'YURIDIK SHAXS', 'yuridik shaxs' # noqa
+        individual = 'JISMONIY SHAXS', 'jismoniy shaxs' # noqa
+
     full_name = models.CharField(max_length=250)
     phone = models.CharField(max_length=30)
     amount = models.PositiveBigIntegerField()
     is_organization = models.BooleanField()
-    status = models.CharField(max_length=30, choices=StatusChoices.choices)
+    progress = models.CharField(max_length=30, choices=StatusChoices.choices)
+    sponsor_status = models.CharField(max_length=50, choices=Sponsor_status.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     organization_name = models.CharField(max_length=250)
 
     def __str__(self):
         return self.full_name, self.organization_name, self.amount
 
+    class Meta:
+        verbose_name ='sponsor'
+        verbose_name_plural ='sponsors'
 
 class StudentSponsor(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     sponsor = models.ForeignKey(Sponsor, on_delete=models.CASCADE)
     amount = models.PositiveBigIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.student, self.sponsor, self.amount, self.created_at
+
+    class Meta:
+        verbose_name ='student sponsor'
+        verbose_name_plural ='student sponsors'
