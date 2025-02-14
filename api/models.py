@@ -47,7 +47,7 @@ class Student(models.Model):
 
     full_name = models.CharField(max_length=100)
     degree = models.CharField(max_length=50, choices=StudentTypes.choices)
-    contract_price = models.FloatField(default=0)
+    contract_price = models.PositiveBigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     university = models.ForeignKey("api.University", on_delete=models.CASCADE, related_name="students")
 

@@ -15,7 +15,15 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1",]
+ALLOWED_HOSTS = [
+    "0.0.0.0",
+    "127.0.0.1",
+    "themirmakhmudov.jprq.site"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://themirmakhmudov.jprq.site"
+]
 
 # Application definition
 
@@ -39,6 +47,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+
 ]
 
 ROOT_URLCONF = 'Metsenat.urls'
