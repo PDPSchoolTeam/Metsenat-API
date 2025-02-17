@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from .serializers import LoginSerializer, RegisterSerializer, UniversitySerializer
-from .models import User, University
+from .serializers import LoginSerializer, RegisterSerializer, UniversitySerializer, SponsorsSerializer
+from .models import User, University, Sponsor
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
@@ -36,9 +36,6 @@ class RegisterAPIView(APIView):
                 }, status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-from rest_framework.exceptions import NotFound
 
 
 class LoginAPIView(APIView):
@@ -90,3 +87,19 @@ class UniversityAPIView(APIView):
         universities = University.objects.all()
         serializer = UniversitySerializer(universities, many=True)
         return Response(serializer.data)
+
+
+class SponsorDetailsAPIView(APIView):
+    @extend_schema(
+        summary="Sponsor Details",
+        description="Sponsor Details API Views",
+        tags=["Sponsor Details"],
+        responses={200: SponsorsSerializer}
+    )
+    def get(self, request, pk):
+        try:
+            sponsor = Sponsor.objects.get(pk=pk)
+            serializer = SponsorsSerializer(sponsor)
+            return Response(serializer.data)
+        except Sponsor.DoesNotExist:
+            return Response({'detail': 'Sponsor not found'}, status=status.HTTP_404_NOT_FOUND)

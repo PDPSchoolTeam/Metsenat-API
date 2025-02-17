@@ -55,8 +55,9 @@ class Student(models.Model):
         return self.full_name
 
     class Meta:
-        verbose_name ='student'
-        verbose_name_plural ='students'
+        verbose_name = 'student'
+        verbose_name_plural = 'students'
+
 
 class Sponsor(models.Model):
     class StatusChoices(models.TextChoices):
@@ -65,16 +66,25 @@ class Sponsor(models.Model):
         CONFIRMED = 'confirmed', 'Confirmed'
         CANCELLED = 'cancelled', 'Cancelled'
 
+    class Amount_choice(models.TextChoices):
+        MILLION = "1_000_000", "1 MLN UZS"
+        FIVE_MILLION = "5_000_000", "5 MLN UZS"
+        SEVEN_MILLION = "7_000_000", "7 MLN UZS"
+        TEN_MILLION = "10_000_000", "10 MLN UZS"
+        THIRTY_MILLION = "30_000_000", "30 MLN UZS"
+        OTHERS = "OTHER", "OTHERS"
+
     class SponsorStatus(models.TextChoices):
         JURIDICAL = 'YURIDIK SHAXS', 'Yuridik shaxs'
         INDIVIDUAL = 'JISMONIY SHAXS', 'Jismoniy shaxs'
 
     full_name = models.CharField(max_length=250)
     phone = models.CharField(max_length=30)
-    amount = models.PositiveBigIntegerField()
+    amount = models.CharField(max_length=30, choices=Amount_choice.choices)
+    custom_amount = models.CharField(max_length=50, blank=True, null=True)  # Custom amount for 'OTHERS'
     is_organization = models.BooleanField()
     progress = models.CharField(max_length=30, choices=StatusChoices.choices)
-    sponsor_status = models.CharField(max_length=50, choices=SponsorStatus.choices, editable=False)
+    sponsor_status = models.CharField(max_length=50, choices=SponsorStatus.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     organization_name = models.CharField(max_length=250, blank=True, null=True)
 
@@ -82,6 +92,12 @@ class Sponsor(models.Model):
         self.sponsor_status = self.SponsorStatus.JURIDICAL if self.is_organization else self.SponsorStatus.INDIVIDUAL
         if not self.is_organization:
             self.organization_name = None
+
+        # If 'OTHERS' is selected, validate and set custom_amount
+        if self.amount == self.Amount_choice.OTHERS and not self.custom_amount:
+            raise ValidationError({'custom_amount': "A custom amount must be provided when 'OTHERS' is selected!"})
+        if self.amount != self.Amount_choice.OTHERS and self.custom_amount:
+            self.custom_amount = None  # Reset custom amount if it's not needed
 
         super().save(*args, **kwargs)
 
@@ -110,5 +126,5 @@ class StudentSponsor(models.Model):
         return self.student, self.sponsor, self.amount, self.created_at
 
     class Meta:
-        verbose_name ='student sponsor'
-        verbose_name_plural ='student sponsors'
+        verbose_name = 'student sponsor'
+        verbose_name_plural = 'student sponsors'
