@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, University
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,3 +9,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+
+class UniversitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = University
+        fields = ['id', 'name']

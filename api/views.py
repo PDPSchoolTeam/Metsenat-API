@@ -3,20 +3,22 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from .serializers import LoginSerializer, RegisterSerializer
-from .models import User
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from .serializers import LoginSerializer, RegisterSerializer, UniversitySerializer
+from .models import User, University
 from rest_framework.parsers import MultiPartParser, FormParser
+
 
 class RegisterAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
+
     @extend_schema(
         summary="User Registration",
-        description="Register user",
-        request=RegisterSerializer,
+        description="Register a new user",
+        request=RegisterSerializer,  # Correctly specify the request body
         responses={
-            200: OpenApiParameter(name="Tokens", description="JWT access token and refresh tokens"),
-            400: OpenApiParameter(name="Errors", description="Invalid credentials")
+            201: OpenApiResponse(response=RegisterSerializer, description="JWT access token and refresh token"),
+            400: OpenApiResponse(description="Invalid input data")
         },
         tags=["User Authentication"]
     )
@@ -24,7 +26,6 @@ class RegisterAPIView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save(password=make_password(serializer.validated_data['password']))
-            # Generate JWT token
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
 
@@ -37,15 +38,19 @@ class RegisterAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+from rest_framework.exceptions import NotFound
+
+
 class LoginAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
+
     @extend_schema(
         summary="User Login",
         description="Login user with email and password",
         request=LoginSerializer,
         responses={
-            200: OpenApiParameter(name="Tokens", description="JWT access token and refresh tokens"),
-            400: OpenApiParameter(name="Errors", description="Invalid credentials")
+            200: OpenApiResponse(response=LoginSerializer, description="JWT access token and refresh token"),
+            400: OpenApiResponse(description="Invalid credentials")
         },
         tags=["User Authentication"]
     )
@@ -54,9 +59,14 @@ class LoginAPIView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['email']
             password = serializer.validated_data['password']
-            if user and check_password(password, User.objects.get(email=user).password):
-                # Generate JWT token
-                refresh = RefreshToken.for_user(User.objects.get(email=user))
+
+            try:
+                user_obj = User.objects.get(email=user)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if user_obj and check_password(password, user_obj.password):
+                refresh = RefreshToken.for_user(user_obj)
                 access_token = str(refresh.access_token)
 
                 return Response(
@@ -68,3 +78,15 @@ class LoginAPIView(APIView):
             else:
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
+class UniversityAPIView(APIView):
+    @extend_schema(
+        summary="University List",
+        description="Retrieves a list of all universities.",
+        tags=["University"],
+        responses={200: UniversitySerializer(many=True)}
+    )
+    def get(self, request):
+        universities = University.objects.all()
+        serializer = UniversitySerializer(universities, many=True)
+        return Response(serializer.data)
