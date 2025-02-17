@@ -61,10 +61,10 @@ class Student(models.Model):
 
 class Sponsor(models.Model):
     class StatusChoices(models.TextChoices):
-        NEW = 'new', 'New'
-        IN_PROCESS = 'in_process', 'In process'
-        CONFIRMED = 'confirmed', 'Confirmed'
-        CANCELLED = 'cancelled', 'Cancelled'
+        NEW = 'YANGI', 'Yangi'
+        IN_PROCESS = 'MODERATSIYADA', 'Moderatsiyada'
+        CONFIRMED = 'TASDIQLANGAN', 'Tasdiqlangan'
+        CANCELLED = 'BEKOR QILINGAN', 'Bekor qilingan'
 
     class Amount_choice(models.TextChoices):
         MILLION = "1_000_000", "1 MLN UZS"
