@@ -11,7 +11,7 @@ from .views import (
     SponsorDeleteAPIView
 )
 
-app_name = 'api'
+app_name = 'Metsenat' # noqa
 
 urlpatterns = [
     path('register', RegisterAPIView.as_view(), name='register'),  # for JWT token generation
