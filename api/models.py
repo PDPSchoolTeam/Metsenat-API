@@ -67,11 +67,11 @@ class Sponsor(models.Model):
         CANCELLED = 'BEKOR QILINGAN', 'Bekor qilingan'
 
     class Amount_choice(models.TextChoices):
-        MILLION = "1 MLN UZS", "1 000 000"
-        FIVE_MILLION = "5 MLN UZS", "5 000 000"
-        SEVEN_MILLION = "7 MLN UZS", "7 000 000"
-        TEN_MILLION = "10 MLN UZS", "10 000 000"
-        THIRTY_MILLION = "30 MLN UZS", "30 000 000"
+        MILLION = "1_000_000", "1 000 000"
+        FIVE_MILLION = "5_000_000", "5 000 000"
+        SEVEN_MILLION = "7_000_000", "7 000 000"
+        TEN_MILLION = "10_000_000", "10 000 000"
+        THIRTY_MILLION = "30_000_000", "30 000 000"
         OTHERS = "Boshqa", "OTHERS"
 
     class SponsorStatus(models.TextChoices):
@@ -79,9 +79,10 @@ class Sponsor(models.Model):
         INDIVIDUAL = 'JISMONIY SHAXS', 'Jismoniy shaxs'
 
     full_name = models.CharField(max_length=250)
-    phone = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=30, unique=True)
     amount = models.CharField(max_length=30, choices=Amount_choice.choices)
-    custom_amount = models.CharField(max_length=50, blank=True, null=True)  # Custom amount for 'OTHERS'
+    custom_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)  # Custom amount for 'OTHERS'
+    deposit_money = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     is_organization = models.BooleanField()
     progress = models.CharField(max_length=30, choices=StatusChoices.choices)
     sponsor_status = models.CharField(max_length=50, choices=SponsorStatus.choices)
@@ -89,17 +90,20 @@ class Sponsor(models.Model):
     organization_name = models.CharField(max_length=250, blank=True, null=True)
     spent_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)  # Spend amount for students
 
-
     def save(self, *args, **kwargs):
         self.sponsor_status = self.SponsorStatus.JURIDICAL if self.is_organization else self.SponsorStatus.INDIVIDUAL
         if not self.is_organization:
             self.organization_name = None
+        if self.amount == self.Amount_choice.OTHERS:
+            if not self.custom_amount:
+                raise ValidationError({'custom_amount': "A custom amount must be provided when 'OTHERS' is selected!"})
+            self.amount = self.custom_amount
+        elif self.amount != self.Amount_choice.OTHERS and self.custom_amount:
+            self.custom_amount = None
+        if self.custom_amount:
+            self.amount = self.custom_amount
 
-        # If 'OTHERS' is selected, validate and set custom_amount
-        if self.amount == self.Amount_choice.OTHERS and not self.custom_amount:
-            raise ValidationError({'custom_amount': "A custom amount must be provided when 'OTHERS' is selected!"})
-        if self.amount != self.Amount_choice.OTHERS and self.custom_amount:
-            self.custom_amount = None  # Reset custom amount if it's not needed
+        self.deposit_money = self.amount
 
         super().save(*args, **kwargs)
 

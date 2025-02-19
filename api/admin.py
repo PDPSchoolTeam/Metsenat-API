@@ -32,8 +32,8 @@ class StudentAdmin(admin.ModelAdmin):
 
 @admin.register(Sponsor)
 class SponsorAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'phone', 'amount', 'is_organization','progress','sponsor_status', 'created_at', 'organization_name')
-    search_fields = ('full_name', 'phone', 'organization_name')
+    list_display = ('full_name', 'phone_number', 'deposit_money', 'is_organization','progress','sponsor_status', 'created_at', 'organization_name', 'spent_amount')
+    search_fields = ('full_name', 'phone_number', 'organization_name')
     list_per_page = 8
 
 @admin.register(StudentSponsor)
