@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from .serializers import LoginSerializer, RegisterSerializer, UniversitySerializer, SponsorsSerializer
+from .serializers import LoginSerializer, RegisterSerializer, UniversitySerializer, SponsorsSerializer, SponsorDeleteSerializer
 from .models import User, University, Sponsor
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -186,8 +186,11 @@ class SponsorDeleteAPIView(APIView):
     @extend_schema(
         summary="Sponsor Delete",
         description="Sponsor API Delete",
-        tags=["Sponsor API"])
+        tags=["Sponsor API"]
+    )
     def delete(self, request, pk):
         sponsor = get_object_or_404(Sponsor, pk=pk)
         sponsor.delete()
-        return Response({'message': 'Sponsor has been deleted successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Sponsor has been deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+    serializer_class = SponsorDeleteSerializer

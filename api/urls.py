@@ -11,6 +11,8 @@ from .views import (
     SponsorDeleteAPIView
 )
 
+app_name = 'api'
+
 urlpatterns = [
     path('register', RegisterAPIView.as_view(), name='register'),  # for JWT token generation
     path('login', LoginAPIView.as_view(), name='login'),

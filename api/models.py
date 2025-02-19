@@ -87,6 +87,8 @@ class Sponsor(models.Model):
     sponsor_status = models.CharField(max_length=50, choices=SponsorStatus.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     organization_name = models.CharField(max_length=250, blank=True, null=True)
+    spent_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)  # Spend amount for students
+
 
     def save(self, *args, **kwargs):
         self.sponsor_status = self.SponsorStatus.JURIDICAL if self.is_organization else self.SponsorStatus.INDIVIDUAL
