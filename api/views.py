@@ -181,3 +181,13 @@ class SponsorUpdateAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SponsorDeleteAPIView(APIView):
+    @extend_schema(
+        summary="Sponsor Delete",
+        description="Sponsor API Delete",
+        tags=["Sponsor API"])
+    def delete(self, request, pk):
+        sponsor = get_object_or_404(Sponsor, pk=pk)
+        sponsor.delete()
+        return Response({'message': 'Sponsor has been deleted successfully'}, status=status.HTTP_200_OK)
