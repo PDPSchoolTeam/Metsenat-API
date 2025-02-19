@@ -1,3 +1,4 @@
+from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,7 +21,7 @@ class RegisterAPIView(APIView):
             201: OpenApiResponse(response=RegisterSerializer, description="JWT access token and refresh token"),
             400: OpenApiResponse(description="Invalid input data")
         },
-        tags=["User Authentication"]
+        tags=["User Authentication API"]
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -28,7 +29,6 @@ class RegisterAPIView(APIView):
             user = serializer.save(password=make_password(serializer.validated_data['password']))
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
-
             return Response(
                 {
                     "refresh": str(refresh),
@@ -49,7 +49,7 @@ class LoginAPIView(APIView):
             200: OpenApiResponse(response=LoginSerializer, description="JWT access token and refresh token"),
             400: OpenApiResponse(description="Invalid credentials")
         },
-        tags=["User Authentication"]
+        tags=["User Authentication API"]
     )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -77,23 +77,60 @@ class LoginAPIView(APIView):
 
 
 class UniversityAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
     @extend_schema(
         summary="University List",
-        description="Retrieves a list of all universities.",
-        tags=["University"],
-        responses={200: UniversitySerializer(many=True)}
+        description="University List API Views",
+        tags=["University API"],
+        responses={200: SponsorsSerializer}
+    )
+    def get(self, request):
+        try:
+            universities = University.objects.all()
+            serializer = UniversitySerializer(universities, many=True)
+            return Response(serializer.data)
+        except University.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+class UniversityDetailsAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary="University Details",
+        description="University Details API Views",
+        tags=["University API"],
+        responses={200: SponsorsSerializer}
     )
     def get(self, request):
         universities = University.objects.all()
         serializer = UniversitySerializer(universities, many=True)
         return Response(serializer.data)
 
+class SponsorsAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary="Sponsors List",
+        description="Sponsors List API Views",
+        tags=["Sponsor API"],
+        responses={200: SponsorsSerializer}
+    )
+    def get(self, request):
+        try:
+            sponsors = Sponsor.objects.all()
+            serializer = SponsorsSerializer(sponsors, many=True)
+            return Response(serializer.data)
+        except Sponsor.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 class SponsorDetailsAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
     @extend_schema(
         summary="Sponsor Details",
         description="Sponsor Details API Views",
-        tags=["Sponsor Details"],
+        tags=["Sponsor API"],
         responses={200: SponsorsSerializer}
     )
     def get(self, request, pk):
@@ -103,3 +140,44 @@ class SponsorDetailsAPIView(APIView):
             return Response(serializer.data)
         except Sponsor.DoesNotExist:
             return Response({'detail': 'Sponsor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class SponsorCreateAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary="Sponsor Registration",
+        description="Register a new sponsor",
+        request=SponsorsSerializer,  # Correctly specify the request body
+        responses={
+            201: OpenApiResponse(response=SponsorsSerializer, description="JWT access token and refresh token"),
+            400: OpenApiResponse(description="Invalid input data")
+        },
+        tags=["Sponsor API"]
+    )
+    def post(self, request):
+        serializer = SponsorsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SponsorUpdateAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary="Sponsor Update",
+        description="Sponsor Update API View",
+        request=SponsorsSerializer,  # Correctly specify the request body
+        responses={
+            200: OpenApiResponse(response=SponsorsSerializer, description="JWT access token and refresh token"),
+            400: OpenApiResponse(description="Invalid input data")
+        },
+        tags=["Sponsor API"]
+    )
+    def put(self, request, pk):
+        sponsor = get_object_or_404(Sponsor, pk=pk)
+        serializer = SponsorsSerializer(sponsor, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

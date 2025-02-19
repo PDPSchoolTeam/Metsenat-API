@@ -22,7 +22,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'password']
+    REQUIRED_FIELDS = ['username', 'password', 'confirm_password']
 
     class Meta:
         verbose_name = 'user'
@@ -67,12 +67,12 @@ class Sponsor(models.Model):
         CANCELLED = 'BEKOR QILINGAN', 'Bekor qilingan'
 
     class Amount_choice(models.TextChoices):
-        MILLION = "1_000_000", "1 MLN UZS"
-        FIVE_MILLION = "5_000_000", "5 MLN UZS"
-        SEVEN_MILLION = "7_000_000", "7 MLN UZS"
-        TEN_MILLION = "10_000_000", "10 MLN UZS"
-        THIRTY_MILLION = "30_000_000", "30 MLN UZS"
-        OTHERS = "OTHER", "OTHERS"
+        MILLION = "1 MLN UZS", "1 000 000"
+        FIVE_MILLION = "5 MLN UZS", "5 000 000"
+        SEVEN_MILLION = "7 MLN UZS", "7 000 000"
+        TEN_MILLION = "10 MLN UZS", "10 000 000"
+        THIRTY_MILLION = "30 MLN UZS", "30 000 000"
+        OTHERS = "Boshqa", "OTHERS"
 
     class SponsorStatus(models.TextChoices):
         JURIDICAL = 'YURIDIK SHAXS', 'Yuridik shaxs'

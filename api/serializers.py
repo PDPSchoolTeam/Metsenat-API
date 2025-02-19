@@ -2,9 +2,20 @@ from rest_framework import serializers
 from .models import User, University, Student, Sponsor
 
 class RegisterSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ['email', 'username', 'password', 'role', 'first_name', 'last_name', 'avatar']
+        fields = ['email', 'username', 'password', 'confirm_password', 'role']
+
+    def validate(self, data):
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
+
+        if password != confirm_password:
+            raise serializers.ValidationError("Passwords do not match.")
+
+        return data
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -23,4 +34,4 @@ class StudentSerializer(serializers.ModelSerializer):
 class SponsorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sponsor
-        fields = "__all__"
+        fields = ["full_name", "phone", "amount", "is_organization", "organization_name"]
