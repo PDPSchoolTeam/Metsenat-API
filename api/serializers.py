@@ -21,10 +21,10 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
-class UniversitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = University
-        fields = ['id', 'name']
+# class UniversitySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = University
+#         fields = ['id', 'name']
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:

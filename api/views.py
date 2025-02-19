@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from .serializers import LoginSerializer, RegisterSerializer, UniversitySerializer, SponsorsSerializer, SponsorDeleteSerializer
-from .models import User, University, Sponsor
+from .serializers import LoginSerializer, RegisterSerializer, SponsorsSerializer, SponsorDeleteSerializer
+from .models import User, Sponsor
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
@@ -76,36 +76,36 @@ class LoginAPIView(APIView):
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class UniversityAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-
-    @extend_schema(
-        summary="University List",
-        description="University List API Views",
-        tags=["University API"],
-        responses={200: SponsorsSerializer}
-    )
-    def get(self, request):
-        try:
-            universities = University.objects.all()
-            serializer = UniversitySerializer(universities, many=True)
-            return Response(serializer.data)
-        except University.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-class UniversityDetailsAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-
-    @extend_schema(
-        summary="University Details",
-        description="University Details API Views",
-        tags=["University API"],
-        responses={200: SponsorsSerializer}
-    )
-    def get(self, request):
-        universities = University.objects.all()
-        serializer = UniversitySerializer(universities, many=True)
-        return Response(serializer.data)
+# class UniversityAPIView(APIView):
+#     parser_classes = (MultiPartParser, FormParser)
+#
+#     @extend_schema(
+#         summary="University List",
+#         description="University List API Views",
+#         tags=["University API"],
+#         responses={200: SponsorsSerializer}
+#     )
+#     def get(self, request):
+#         try:
+#             universities = University.objects.all()
+#             serializer = UniversitySerializer(universities, many=True)
+#             return Response(serializer.data)
+#         except University.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#
+# class UniversityDetailsAPIView(APIView):
+#     parser_classes = (MultiPartParser, FormParser)
+#
+#     @extend_schema(
+#         summary="University Details",
+#         description="University Details API Views",
+#         tags=["University API"],
+#         responses={200: SponsorsSerializer}
+#     )
+#     def get(self, request):
+#         universities = University.objects.all()
+#         serializer = UniversitySerializer(universities, many=True)
+#         return Response(serializer.data)
 
 class SponsorsAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
