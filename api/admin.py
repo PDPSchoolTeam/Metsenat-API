@@ -26,7 +26,7 @@ class UniversityAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'degree', 'contract_price', 'university')
+    list_display = ('full_name', 'degree', 'allocated_money', 'contract_price', 'university')
     search_fields = ('full_name', 'degree')
     list_per_page = 8
 

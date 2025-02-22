@@ -8,10 +8,10 @@ from .views import (
     SponsorDetailsAPIView,
     SponsorCreateAPIView,
     SponsorUpdateAPIView,
-    SponsorDeleteAPIView
+    SponsorDeleteAPIView,
+    StudentsSponsorsAPIView,
+    StudentAPIView
 )
-
-app_name = 'Metsenat' # noqa
 
 urlpatterns = [
     path('register', RegisterAPIView.as_view(), name='register'),  # for JWT token generation
@@ -23,5 +23,6 @@ urlpatterns = [
     path('sponsor/create', SponsorCreateAPIView.as_view(), name='sponsor-create'),  # for Sponsors Create View
     path('sponsor/update/<int:pk>', SponsorUpdateAPIView.as_view(), name='sponsor-update'),  # for Sponsors Update View
     path('sponsor/delete/<int:pk>', SponsorDeleteAPIView.as_view(), name='sponsor-delete'),  # for Sponsors Delete View
-
+    path('sponsor/student', StudentsSponsorsAPIView.as_view(), name='sponsor-student'),  # for Students with Sponsors
+    path('student', StudentAPIView.as_view(), name='student-list'),  # for Student List View
 ]

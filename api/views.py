@@ -5,8 +5,15 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from .serializers import LoginSerializer, RegisterSerializer, SponsorsSerializer, SponsorDeleteSerializer
-from .models import User, Sponsor
+from .serializers import (LoginSerializer,
+                          RegisterSerializer,
+                          SponsorsSerializer,
+                          SponsorDeleteSerializer,
+                          StudentsSponsorsSerializer,
+                          StudentSerializer,
+
+                          )
+from .models import User, Sponsor, Student
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
@@ -74,7 +81,6 @@ class LoginAPIView(APIView):
                 )
             else:
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 # class UniversityAPIView(APIView):
 #     parser_classes = (MultiPartParser, FormParser)
@@ -194,3 +200,39 @@ class SponsorDeleteAPIView(APIView):
         return Response({'message': 'Sponsor has been deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
     serializer_class = SponsorDeleteSerializer
+
+class StudentsSponsorsAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary="Student Sponsor Create",
+        description="Student Sponsors API View",
+        request=StudentsSponsorsSerializer,  # Correctly specify the request body
+        responses={
+            201: OpenApiResponse(response=StudentsSponsorsSerializer, description="Sponsors has been helped for student's contacts successfully created"),
+            400: OpenApiResponse(description="Invalid input data")
+        },
+        tags=["Sponsor API"]
+    )
+    def post(self, request):
+        serializer = StudentsSponsorsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class StudentAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    @extend_schema(
+        summary="Student List",
+        description="Student List API Views",
+        tags=["Student API"],
+        responses={200: StudentSerializer}
+    )
+    def get(self, request):
+        try:
+            students = Student.objects.all()
+            serializer = StudentSerializer(students, many=True)
+            return Response(serializer.data)
+        except Student.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
