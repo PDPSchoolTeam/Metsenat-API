@@ -1,3 +1,5 @@
+<img src="https://github.com/user-attachments/assets/0540d9f1-165a-4f44-9781-6a2739963917" alt="Image here" width="1280" height="400"> 
+
 # Metsenat-API
 
 ![Metsenat-API](https://img.shields.io/badge/Metsenat-API-blue.svg)
@@ -109,6 +111,9 @@ Metsenat-API/
 │── README.md           # Project documentation
 │── Makefile            # Automation scripts
 ```
+
+<img src="https://github.com/user-attachments/assets/c9bd9404-7cd6-4880-9ad0-60130a37197e" alt="Image here"> 
+
 
 ## 🛠 API Endpoints
 | Method | Endpoint                  | Description          |
