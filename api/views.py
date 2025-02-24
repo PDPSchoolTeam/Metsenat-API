@@ -1,7 +1,7 @@
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -11,10 +11,11 @@ from .serializers import (LoginSerializer,
                           SponsorDeleteSerializer,
                           StudentsSponsorsSerializer,
                           StudentSerializer,
-
+                          StudentDeleteSerializer, TotalPaymentsSerializer
                           )
-from .models import User, Sponsor, Student
+from .models import User, Sponsor, Student, StudentSponsor, TotalPayment
 from rest_framework.parsers import MultiPartParser, FormParser
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class RegisterAPIView(APIView):
@@ -82,6 +83,7 @@ class LoginAPIView(APIView):
             else:
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 # class UniversityAPIView(APIView):
 #     parser_classes = (MultiPartParser, FormParser)
 #
@@ -130,6 +132,7 @@ class SponsorsAPIView(APIView):
         except Sponsor.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+
 class SponsorDetailsAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -146,6 +149,7 @@ class SponsorDetailsAPIView(APIView):
             return Response(serializer.data)
         except Sponsor.DoesNotExist:
             return Response({'detail': 'Sponsor not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class SponsorCreateAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -166,6 +170,7 @@ class SponsorCreateAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class SponsorUpdateAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -188,6 +193,7 @@ class SponsorUpdateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class SponsorDeleteAPIView(APIView):
     @extend_schema(
         summary="Sponsor Delete",
@@ -201,6 +207,7 @@ class SponsorDeleteAPIView(APIView):
 
     serializer_class = SponsorDeleteSerializer
 
+
 class StudentsSponsorsAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -209,7 +216,8 @@ class StudentsSponsorsAPIView(APIView):
         description="Student Sponsors API View",
         request=StudentsSponsorsSerializer,  # Correctly specify the request body
         responses={
-            201: OpenApiResponse(response=StudentsSponsorsSerializer, description="Sponsors has been helped for student's contacts successfully created"),
+            201: OpenApiResponse(response=StudentsSponsorsSerializer,
+                                 description="Sponsors has been helped for student's contacts successfully created"),
             400: OpenApiResponse(description="Invalid input data")
         },
         tags=["Sponsor API"]
@@ -221,8 +229,10 @@ class StudentsSponsorsAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class StudentAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
+
     @extend_schema(
         summary="Student List",
         description="Student List API Views",
@@ -236,3 +246,103 @@ class StudentAPIView(APIView):
             return Response(serializer.data)
         except Student.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class StudentCreateAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary="Student Create API",
+        description="Student Create API Views",
+        request=StudentSerializer,
+        tags=["Student API"],
+        responses={200: StudentSerializer}
+    )
+    def post(self, request):
+        serializer = StudentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StudentUpdateAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary="Student Update API",
+        description="Student Update API Views",
+        request=StudentSerializer,
+        tags=["Student API"],
+        responses={200: StudentSerializer}
+    )
+    def post(self, request, pk):
+        student = Student.objects.get(pk=pk)
+        serializer = StudentSerializer(student, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class StudentDeleteAPIView(APIView):
+    @extend_schema(
+        summary="Student Delete",
+        description="Student API Delete",
+        tags=["Student API"]
+    )
+    def delete(self, request, pk):
+        student = get_object_or_404(Student, pk=pk)
+        student.delete()
+        return Response({'message': 'Student has been deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+    serializer_class = StudentDeleteSerializer
+
+
+@extend_schema(
+    tags=["Filters"]
+)
+class SponsorFilterAPIView(ListAPIView):
+    serializer_class = SponsorsSerializer
+    queryset = Sponsor.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    search_fields = ['full_name', 'progress', 'sponsor_status']
+    filterset_fields = ['full_name', 'progress', 'sponsor_status']
+
+
+@extend_schema(
+    tags=["Filters"]
+)
+class StudentFilterAPIView(ListAPIView):
+    serializer_class = StudentSerializer
+    queryset = Student.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['full_name', 'degree', 'university']
+    search_fields = ['full_name', 'degree', 'university']
+
+
+@extend_schema(
+    tags=["Filters"]
+)
+class StudentSponsorFilterAPIView(ListAPIView):
+    serializer_class = StudentsSponsorsSerializer
+    queryset = StudentSponsor.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['student', 'sponsor', 'created_at']
+    search_fields = ['student', 'sponsor', 'created_at']
+
+
+class TotalPaymentsAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
+        summary='Total Payment API',
+        request=TotalPaymentsSerializer,
+        responses={
+            200: TotalPaymentsSerializer,
+            '400': OpenApiResponse(description='Invalid input data')
+        }
+    )
+    def get(self, request):
+        total_payments = TotalPayment.objects.all()
+        serializer = TotalPaymentsSerializer(total_payments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -82,7 +82,7 @@ class Sponsor(models.Model):
 
     full_name = models.CharField(max_length=250)
     phone_number = models.CharField(max_length=30, unique=True)
-    amount = models.CharField(max_length=30, choices=AmountChoice.choices)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)  # Now a DecimalField
     custom_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     deposit_money = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal(0))
     is_organization = models.BooleanField()
@@ -96,16 +96,12 @@ class Sponsor(models.Model):
         self.sponsor_status = self.SponsorStatus.JURIDICAL if self.is_organization else self.SponsorStatus.INDIVIDUAL
         if not self.is_organization:
             self.organization_name = None
-        if self.amount == self.AmountChoice.OTHERS:
-            if not self.custom_amount:
-                raise ValidationError({'custom_amount': "A custom amount must be provided when 'OTHERS' is selected!"})
-            self.amount = str(self.custom_amount)  # Converting custom amount to string to save it correctly
-        elif self.amount != self.AmountChoice.OTHERS and self.custom_amount:
+        if self.amount == Decimal(0) and self.custom_amount:
+            self.amount = self.custom_amount
+        elif self.amount != Decimal(0) and self.custom_amount:
             self.custom_amount = None
-        if self.custom_amount:
-            self.amount = str(self.custom_amount)
 
-        self.deposit_money = Decimal(self.amount)
+        self.deposit_money = self.amount
 
         super().save(*args, **kwargs)
 
@@ -131,15 +127,13 @@ class StudentSponsor(models.Model):
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            # Update sponsor's spent amount and available amount
             sponsor = self.sponsor
-            sponsor.spent_amount += self.amount  # Add to spent_amount
-            sponsor.amount = str(Decimal(sponsor.amount) - self.amount)  # Ensure amount remains as a string and deduct the amount
+            sponsor.spent_amount += self.amount
+            sponsor.amount -= self.amount
             sponsor.save()
 
-            # Update student's total amount received
             student = self.student
-            student.allocated_money += self.amount  # Add to student's allocated_money
+            student.allocated_money += self.amount
             student.save()
 
             super().save(*args, **kwargs)
@@ -147,3 +141,7 @@ class StudentSponsor(models.Model):
     class Meta:
         verbose_name = 'student sponsor'
         verbose_name_plural = 'student sponsors'
+
+
+class TotalPayment(models.Model):
+    pass
