@@ -14,12 +14,12 @@ from .serializers import (LoginSerializer,
                           StudentDeleteSerializer, TotalPaymentsSerializer
                           )
 from .models import User, Sponsor, Student, StudentSponsor, TotalPayment
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django_filters.rest_framework import DjangoFilterBackend
 
 
 class RegisterAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="User Registration",
@@ -47,7 +47,7 @@ class RegisterAPIView(APIView):
 
 
 class LoginAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="User Login",
@@ -85,7 +85,7 @@ class LoginAPIView(APIView):
 
 
 # class UniversityAPIView(APIView):
-#     parser_classes = (MultiPartParser, FormParser)
+#     parser_classes = (MultiPartParser, FormParser, JsonParser)
 #
 #     @extend_schema(
 #         summary="University List",
@@ -116,7 +116,7 @@ class LoginAPIView(APIView):
 #         return Response(serializer.data)
 
 class SponsorsAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Sponsors List",
@@ -134,7 +134,7 @@ class SponsorsAPIView(APIView):
 
 
 class SponsorDetailsAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Sponsor Details",
@@ -152,7 +152,7 @@ class SponsorDetailsAPIView(APIView):
 
 
 class SponsorCreateAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Sponsor Registration",
@@ -173,7 +173,7 @@ class SponsorCreateAPIView(APIView):
 
 
 class SponsorUpdateAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Sponsor Update",
@@ -209,7 +209,7 @@ class SponsorDeleteAPIView(APIView):
 
 
 class StudentsSponsorsAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Student Sponsor Create",
@@ -231,7 +231,7 @@ class StudentsSponsorsAPIView(APIView):
 
 
 class StudentAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Student List",
@@ -249,7 +249,7 @@ class StudentAPIView(APIView):
 
 
 class StudentCreateAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Student Create API",
@@ -267,7 +267,7 @@ class StudentCreateAPIView(APIView):
 
 
 class StudentUpdateAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary="Student Update API",
@@ -283,6 +283,7 @@ class StudentUpdateAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class StudentDeleteAPIView(APIView):
     @extend_schema(
@@ -332,7 +333,7 @@ class StudentSponsorFilterAPIView(ListAPIView):
 
 
 class TotalPaymentsAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @extend_schema(
         summary='Total Payment API',
