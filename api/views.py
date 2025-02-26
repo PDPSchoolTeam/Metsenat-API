@@ -338,6 +338,7 @@ class TotalPaymentsAPIView(APIView):
     @extend_schema(
         summary='Total Payment API',
         request=TotalPaymentsSerializer,
+        tags=["TotalPayments API"],
         responses={
             200: TotalPaymentsSerializer,
             '400': OpenApiResponse(description='Invalid input data')
