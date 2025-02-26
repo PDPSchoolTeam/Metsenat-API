@@ -1,5 +1,6 @@
 asgiref==3.8.1
 attrs==25.1.0
+dj-database-url==2.3.0
 Django==5.1.6
 django-filter==24.3
 django-jazzmin==3.0.1
